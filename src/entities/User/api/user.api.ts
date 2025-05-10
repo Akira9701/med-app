@@ -7,6 +7,18 @@ interface ICreateUser {
   password: string;
 }
 
+interface IUpdateProfileData {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  address?: {
+    city?: string;
+    street?: string;
+    building?: string;
+  };
+  avatarUrl?: string;
+}
+
 const userApi = {
   getUser: async (): Promise<IUser | null> => {
     const response = await apiInstance.get('/profiles/users/me');
@@ -17,6 +29,10 @@ const userApi = {
       ...user,
       userType: 'USER',
     });
+    return response.data;
+  },
+  updateProfile: async (data: IUpdateProfileData): Promise<IUser> => {
+    const response = await apiInstance.put('/profiles/users/me', data);
     return response.data;
   },
 };
