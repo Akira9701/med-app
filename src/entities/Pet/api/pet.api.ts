@@ -1,3 +1,4 @@
+import apiInstance from '@/shared/api/api.instance';
 import { IPet, IMedicalRecord } from '../types';
 import { EPetType } from '@/shared/constants/pet.constants';
 import { delay } from '@/shared/lib/utils/delay.utils';
@@ -14,8 +15,8 @@ const petApi = {
    */
 
   getPets: async (): Promise<IPet[]> => {
-    await delay(800);
-    return [...petsMock];
+    const response = await apiInstance.get<IPet[]>('/profiles/pets/my');
+    return response.data;
   },
 
   /**
@@ -40,13 +41,8 @@ const petApi = {
    * Create a new pet
    */
   createPet: async (pet: Omit<IPet, 'id'>): Promise<IPet> => {
-    await delay(800);
-    const newPet: IPet = {
-      ...pet,
-      id: uuidv4(),
-    };
-    petsMock.push(newPet);
-    return { ...newPet };
+    const response = await apiInstance.post<IPet>('/profiles/pets/my', pet);
+    return response.data;
   },
 
   /**
@@ -92,6 +88,11 @@ const petApi = {
   getPetsByType: async (type: EPetType): Promise<IPet[]> => {
     await delay(800);
     return petsMock.filter((pet) => pet.type === type);
+  },
+
+  getPetById: async (id: string): Promise<IPet> => {
+    const response = await apiInstance.get<IPet>(`/profiles/vets/${id}`);
+    return response.data;
   },
 };
 
