@@ -5,14 +5,50 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/shared/ui/avatar';
 import Typography from '@/shared/ui/Typography/ui/Typography';
 import { Badge } from '@/shared/ui/badge';
 import { LoadingState, EmptyState } from '@/shared/ui/LoadingState';
-import { Stethoscope, Mail, MapPin, Building, Award, Info } from 'lucide-react';
+import { Stethoscope, Mail, MapPin, Building, Award, Info, Calendar } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Button } from '@/shared/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/shared/ui/alert-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
+import { Input } from '@/shared/ui/input';
+import { Textarea } from '@/shared/ui/textarea';
+import { format } from 'date-fns';
+
+// Интерфейс для формы записи на прием
+interface AppointmentForm {
+  vetId: string;
+  petId: string;
+  startTime: string;
+  endTime: string;
+  notes: string;
+}
 
 const VetProfilePage = () => {
   const location = useLocation();
   const id = location.pathname.split('/').pop();
   const vet = useVetsStore((state) => state.vets?.find((vet) => vet.id === id));
   const [loading, setLoading] = useState(true);
+  const [pets, setPets] = useState<{ id: string; name: string }[]>([]);
+  const [isBooking, setIsBooking] = useState(false);
+
+  // Состояние формы записи
+  const [appointmentForm, setAppointmentForm] = useState<AppointmentForm>({
+    vetId: id || '',
+    petId: '',
+    startTime: format(new Date().setHours(9, 0, 0), "yyyy-MM-dd'T'HH:mm"),
+    endTime: format(new Date().setHours(10, 0, 0), "yyyy-MM-dd'T'HH:mm"),
+    notes: '',
+  });
 
   useEffect(() => {
     // Simulate loading time for data to be available
@@ -20,8 +56,66 @@ const VetProfilePage = () => {
       setLoading(false);
     }, 500);
 
+    // Загрузка списка питомцев пользователя
+    const fetchPets = async () => {
+      try {
+        // Здесь будет реальный запрос к API
+        // Пока используем моковые данные
+        setPets([
+          { id: 'pet1', name: 'Барсик' },
+          { id: 'pet2', name: 'Шарик' },
+          { id: 'pet3', name: 'Пушок' },
+        ]);
+      } catch (error) {
+        console.error('Failed to fetch pets:', error);
+      }
+    };
+
+    fetchPets();
     return () => clearTimeout(timer);
   }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setAppointmentForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handlePetChange = (value: string) => {
+    setAppointmentForm((prev) => ({
+      ...prev,
+      petId: value,
+    }));
+  };
+
+  const handleBookAppointment = async () => {
+    try {
+      setIsBooking(true);
+      // Здесь будет реальный запрос к API
+      console.log('Booking appointment:', appointmentForm);
+
+      // Имитация запроса к API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Сбросить форму после успешной записи
+      setAppointmentForm({
+        vetId: id || '',
+        petId: '',
+        startTime: format(new Date().setHours(9, 0, 0), "yyyy-MM-dd'T'HH:mm"),
+        endTime: format(new Date().setHours(10, 0, 0), "yyyy-MM-dd'T'HH:mm"),
+        notes: '',
+      });
+
+      setIsBooking(false);
+      // Здесь можно добавить уведомление об успешной записи
+    } catch (error) {
+      console.error('Failed to book appointment:', error);
+      setIsBooking(false);
+      // Здесь можно добавить уведомление об ошибке
+    }
+  };
 
   if (loading) {
     return <LoadingState message="Загрузка информации о ветеринаре..." />;
@@ -62,6 +156,92 @@ const VetProfilePage = () => {
               </Badge>
             </div>
           )}
+
+          {/* Кнопка записи на прием */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button className="mt-4 gap-2">
+                <Calendar className="h-4 w-4" />
+                Записаться на прием
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Запись на прием</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Заполните форму для записи на прием к ветеринару {vet.firstName} {vet.lastName}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <label htmlFor="pet" className="text-sm font-medium">
+                    Выберите питомца
+                  </label>
+                  <Select value={appointmentForm.petId} onValueChange={handlePetChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Выберите питомца" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {pets.map((pet) => (
+                        <SelectItem key={pet.id} value={pet.id}>
+                          {pet.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <label htmlFor="startTime" className="text-sm font-medium">
+                    Дата и время начала
+                  </label>
+                  <Input
+                    id="startTime"
+                    name="startTime"
+                    type="datetime-local"
+                    value={appointmentForm.startTime}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <label htmlFor="endTime" className="text-sm font-medium">
+                    Дата и время окончания
+                  </label>
+                  <Input
+                    id="endTime"
+                    name="endTime"
+                    type="datetime-local"
+                    value={appointmentForm.endTime}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <label htmlFor="notes" className="text-sm font-medium">
+                    Комментарий
+                  </label>
+                  <Textarea
+                    id="notes"
+                    name="notes"
+                    placeholder="Опишите причину визита"
+                    value={appointmentForm.notes}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel>Отмена</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleBookAppointment}
+                  disabled={isBooking || !appointmentForm.petId}>
+                  {isBooking ? 'Отправка...' : 'Записаться'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         <div className="h-px bg-slate-100 dark:bg-gray-700 mx-6" />
