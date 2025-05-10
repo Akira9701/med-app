@@ -3,7 +3,6 @@ import { IPet, IMedicalRecord } from '../types';
 import { EPetType } from '@/shared/constants/pet.constants';
 import { delay } from '@/shared/lib/utils/delay.utils';
 import { petMedicalRecordsMock, petsMock } from '@/shared/mocks/pet.mock';
-import { v4 as uuidv4 } from 'uuid';
 
 // Mock data for pets
 
@@ -49,16 +48,8 @@ const petApi = {
    * Update an existing pet
    */
   updatePet: async (id: string, pet: Partial<IPet>): Promise<IPet> => {
-    await delay(800);
-    const petIndex = petsMock.findIndex((p) => p.id === id);
-    if (petIndex >= 0) {
-      petsMock[petIndex] = {
-        ...petsMock[petIndex],
-        ...pet,
-      };
-      return { ...petsMock[petIndex] };
-    }
-    throw new Error(`Pet with id ${id} not found`);
+    const response = await apiInstance.put<IPet>(`/profiles/pets/me/pets/${id}`, pet);
+    return response.data;
   },
 
   /**
