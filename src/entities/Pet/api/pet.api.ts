@@ -41,7 +41,7 @@ const petApi = {
    * Create a new pet
    */
   createPet: async (pet: Omit<IPet, 'id'>): Promise<IPet> => {
-    const response = await apiInstance.post<IPet>('/profiles/pets/my', pet);
+    const response = await apiInstance.post<IPet>('/profiles/pets', pet);
     return response.data;
   },
 
