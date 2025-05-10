@@ -1,21 +1,17 @@
 import { FC, useCallback, useRef, useState } from 'react';
-import { Switch } from '@/shared/ui/switch';
-import { Label } from '@/shared/ui/label';
-import { IVet } from '@/entities/Vets/types';
-import { VetPageChangeHandlerKey } from '@/types/profilePages.types';
+import { IUser } from '@/entities/User/types';
 
 interface IProfileComponentProps {
-  vet: IVet;
+  user: IUser;
 }
 
-const ProfileComponent: FC<IProfileComponentProps> = ({ vet }) => {
+const ProfileComponent: FC<IProfileComponentProps> = ({ user }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isOpenAlertModal, setIsOpenAlertModal] = useState(false);
   const [isSomeDataChanged, setIsSomeDataChanged] = useState<boolean>(false);
-  const [services, setServices] = useState<string[]>(vet?.services || []);
-  const userDataRef = useRef<Partial<IVet>>({
-    firstName: vet?.firstName,
-    lastName: vet?.lastName,
+  const userDataRef = useRef<Partial<IUser>>({
+    firstName: user?.firstName,
+    lastName: user?.lastName,
     email: vet?.email,
     specialization: vet?.specialization,
     avatarUrl: vet?.avatarUrl,

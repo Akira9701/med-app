@@ -6,7 +6,7 @@ import ProfileComponent from './components/ProfileComponent/ProfileComponent';
 const ProfilePage = () => {
   const user = useUserStore((state) => state.user);
 
-  return <div className="relative">{<ProfileComponent vet={user as IVet} />}</div>;
+  return <div className="relative">{<ProfileComponent user={user} />}</div>;
 };
 
 export default ProfilePage;

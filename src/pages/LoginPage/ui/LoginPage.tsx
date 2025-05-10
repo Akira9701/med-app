@@ -4,14 +4,13 @@ import LoginForm from './components/LoginForm';
 import userApi from '@/entities/User/api/user.api';
 import { setUser } from '@/entities/User/model/user.store';
 import { delay } from '@/shared/lib/utils/delay.utils';
-import { IClinic } from '@/entities/Clinic/types';
-import { IVet } from '@/entities/Vets/types';
 import { useState } from 'react';
 import { setIsShowLoader } from '@/entities/Auth/model/auth.store';
 import { toast } from 'sonner';
 import authApi from '@/shared/api/auth.api';
 import authToken from '@/shared/localstorage/authToken';
-import { decodeToken, getUserTypeFromToken } from '@/shared/lib/utils/jwt.utils';
+import { decodeToken } from '@/shared/lib/utils/jwt.utils';
+import { IUser } from '@/entities/User/types';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -21,49 +20,31 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       // Authenticate user
-      const authResponse = await authApi.login(email, password);
+      const { token } = await authApi.login(email, password);
 
       // Set authentication token
-      authToken.set(authResponse.token);
+      authToken.set(token);
 
       // Decode the JWT token
-      const decodedToken = decodeToken(authResponse.token);
+      const decodedToken = decodeToken(token);
+
       if (!decodedToken) {
         throw new Error('Invalid token received');
       }
 
+      const userResponse = await userApi.getUser();
+      setUser(userResponse as IUser | null);
       // Determine user type from token
 
       setIsShowLoader(true);
 
-      delay(300)
-        .then(async () => {
-          navigate(rootRoute);
-          const userType = getUserTypeFromToken(authResponse.token);
-          // Set user data directly from token payload when possible
-          if (userType === 'clinic' || userType === 'vet') {
-            // Safe to cast as we've already verified the token structure with getUserTypeFromToken
-            setUser(decodedToken as unknown as IClinic | IVet);
-          } else {
-            // Fallback to API call if token doesn't have enough information
-            const userResponse = await userApi.getUser();
-            setUser(userResponse as IClinic | IVet | null);
-          }
-
-          // Show loader for transition
-          toast.success('Login successful');
-        })
-        .then(() => {
-          // Hide loader after delay
-          delay(400).then(async () => {
-            setIsShowLoader(false);
-          });
-        });
-
-      // Hide loader after delay
-      delay(400).then(async () => {
-        setIsShowLoader(false);
-      });
+      await delay(300);
+      navigate(rootRoute);
+      toast.success('Login successful');
+      await delay(400);
+      setIsShowLoader(false);
+      await delay(400);
+      setIsShowLoader(false);
     } catch (error) {
       console.error('Login error', error);
       toast.error('Failed to login. Please check your credentials and try again.');

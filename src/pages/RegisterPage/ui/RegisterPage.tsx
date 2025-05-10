@@ -11,17 +11,11 @@ import { PasswordInput } from '@/shared/ui/password-input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router';
-import { loginRoute, rootRoute } from '@/app/router/lib/constants';
+import { loginRoute } from '@/app/router/lib/constants';
 import { useState } from 'react';
-import userApi from '@/entities/User/api/user.api';
-import { IClinic } from '@/entities/Clinic/types';
-import { IVet } from '@/entities/Vets/types';
-import { setUser } from '@/entities/User/model/user.store';
 import { setIsShowLoader } from '@/entities/Auth/model/auth.store';
 import { delay } from '@/shared/lib/utils/delay.utils';
 import authApi from '@/shared/api/auth.api';
-import authToken from '@/shared/localstorage/authToken';
-import { decodeToken } from '@/shared/lib/utils/jwt.utils';
 
 // Define validation schema using Zod for Vet
 const vetFormSchema = z
@@ -61,26 +55,13 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       // Register user and get authentication token
-      const { token } = await authApi.register(values.email, values.password, values.name);
-
-      // Set authentication token
-      authToken.set(token);
-
-      // Decode the JWT token
-      const decodedToken = decodeToken(token);
-      if (!decodedToken) {
-        throw new Error('Invalid token received');
-      }
-
-      const createdUser = await userApi.createUser(decodedToken as unknown as IClinic | IVet);
+      await authApi.register(values.email, values.password, values.name);
+      toast.success('Registration successful');
 
       // Set auth token and user data
-      setUser(createdUser);
-
+      navigate(loginRoute);
       // Show loader and navigate
       setIsShowLoader(true);
-      toast.success('Registration successful');
-      navigate(rootRoute);
 
       // Hide loader after delay
       delay(400).then(() => {

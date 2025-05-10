@@ -1,7 +1,6 @@
 import ProfilePage from '@/pages/ProfilePage/ui/ProfilePage';
 import { createBrowserRouter } from 'react-router';
-import { loginRoute, profileRoute, registerRoute, rootRoute, vetsRoute } from './lib/constants';
-import VetsPage from '@/pages/VetsPage';
+import { loginRoute, profileRoute, registerRoute, rootRoute } from './lib/constants';
 import RegisterPage from '@/pages/RegisterPage';
 import LoginPage from '@/pages/LoginPage';
 import Root from './root';
@@ -14,10 +13,6 @@ const router = createBrowserRouter([
       {
         path: profileRoute,
         element: <ProfilePage />,
-      },
-      {
-        path: vetsRoute,
-        element: <VetsPage />,
       },
       {
         path: loginRoute,
