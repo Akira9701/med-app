@@ -2,7 +2,6 @@ import { FC, createElement } from 'react';
 import cn from 'classnames';
 import styles from './Typography.module.scss';
 import { TypographyColor, TypographyTag, CombinedTypographyVariant } from '../types';
-import i18n from '@/app/translates';
 
 interface ITypography {
   children: React.ReactNode;
@@ -39,7 +38,6 @@ const Typography: FC<ITypography> = ({
     htmlTag,
     {
       className: cn(
-        i18n.language === 'ru' ? styles.typography__ru : styles.typography__en,
         styles.typography,
         styles[`typography--${variantPart}`],
         styles[`typography--${color}`],
