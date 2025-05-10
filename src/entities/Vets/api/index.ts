@@ -1,15 +1,11 @@
 import { IVet } from '@/entities/Vets/types';
+import apiInstance from '@/shared/api/api.instance';
 import { clinicVetsMock, otherVetsMock } from '@/shared/mocks/vet.mock';
 
 const vetsApi = {
   getVets: async (): Promise<IVet[]> => {
-    // const response = await apiInstance.get('/vets');
-    // return response.data;
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([...clinicVetsMock, ...otherVetsMock]);
-      }, 1000);
-    });
+    const response = await apiInstance.get('/profiles/vets');
+    return response.data;
   },
   addVetToClinic: async (vetId: string): Promise<void> => {
     // const response = await apiInstance.post(`/vets/${vetId}/clinic`);
