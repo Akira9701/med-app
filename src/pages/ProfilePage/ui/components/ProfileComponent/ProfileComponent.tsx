@@ -1,15 +1,31 @@
 import { FC } from 'react';
 import { IUser } from '@/entities/User/types';
-import { Card, CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
+import { CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/shared/ui/avatar';
 import { Badge } from '@/shared/ui/badge';
 import Typography from '@/shared/ui/Typography/ui/Typography';
+import { Button } from '@/shared/ui/button';
+import authApi from '@/shared/api/auth.api';
+import { clearUser } from '@/entities/User/model/user.store';
+import { useNavigate } from 'react-router';
 
 interface IProfileComponentProps {
   user: IUser | null;
 }
 
 const ProfileComponent: FC<IProfileComponentProps> = ({ user }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      clearUser();
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   if (!user) {
     return <div>User not found</div>;
   }
@@ -65,6 +81,9 @@ const ProfileComponent: FC<IProfileComponentProps> = ({ user }) => {
               </ul>
             )}
           </div>
+          <Button variant="destructive" className="mt-4" onClick={handleLogout}>
+            Выйти
+          </Button>
         </CardContent>
       </div>
     </div>

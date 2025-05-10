@@ -1,6 +1,5 @@
 import useUserStore from '@/entities/User/model/user.store';
 
-import { IVet } from '@/entities/Vets/types';
 import ProfileComponent from './components/ProfileComponent/ProfileComponent';
 
 const ProfilePage = () => {

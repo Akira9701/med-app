@@ -41,6 +41,11 @@ const authApi = {
     const response = await apiInstance.post('auth/signup', loginData);
     return response.data;
   },
+
+  logout: async () => {
+    const response = await apiInstance.post('auth/logout');
+    return response.data;
+  },
 };
 
 export default authApi;
