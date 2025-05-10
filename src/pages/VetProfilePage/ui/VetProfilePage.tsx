@@ -23,26 +23,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/shared/ui/input';
 import { Textarea } from '@/shared/ui/textarea';
 import { format } from 'date-fns';
-
-// Интерфейс для формы записи на прием
-interface AppointmentForm {
-  vetId: string;
-  petId: string;
-  startTime: string;
-  endTime: string;
-  notes: string;
-}
+import usePetStore, { fetchPets } from '@/entities/Pet/model/pet.store';
+import { toast } from 'sonner';
+import petApi, { IAppointmentRequest } from '@/entities/Pet/api/pet.api';
 
 const VetProfilePage = () => {
   const location = useLocation();
   const id = location.pathname.split('/').pop();
   const vet = useVetsStore((state) => state.vets?.find((vet) => vet.id === id));
   const [loading, setLoading] = useState(true);
-  const [pets, setPets] = useState<{ id: string; name: string }[]>([]);
   const [isBooking, setIsBooking] = useState(false);
 
+  // Получаем питомцев из store
+  const { pets, loading: petsLoading } = usePetStore();
+
   // Состояние формы записи
-  const [appointmentForm, setAppointmentForm] = useState<AppointmentForm>({
+  const [appointmentForm, setAppointmentForm] = useState<IAppointmentRequest>({
     vetId: id || '',
     petId: '',
     startTime: format(new Date().setHours(9, 0, 0), "yyyy-MM-dd'T'HH:mm"),
@@ -56,22 +52,9 @@ const VetProfilePage = () => {
       setLoading(false);
     }, 500);
 
-    // Загрузка списка питомцев пользователя
-    const fetchPets = async () => {
-      try {
-        // Здесь будет реальный запрос к API
-        // Пока используем моковые данные
-        setPets([
-          { id: 'pet1', name: 'Барсик' },
-          { id: 'pet2', name: 'Шарик' },
-          { id: 'pet3', name: 'Пушок' },
-        ]);
-      } catch (error) {
-        console.error('Failed to fetch pets:', error);
-      }
-    };
-
+    // Загружаем питомцев из store
     fetchPets();
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -93,11 +76,9 @@ const VetProfilePage = () => {
   const handleBookAppointment = async () => {
     try {
       setIsBooking(true);
-      // Здесь будет реальный запрос к API
-      console.log('Booking appointment:', appointmentForm);
 
-      // Имитация запроса к API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Используем API метод для записи на прием
+      await petApi.bookAppointment(appointmentForm);
 
       // Сбросить форму после успешной записи
       setAppointmentForm({
@@ -109,11 +90,11 @@ const VetProfilePage = () => {
       });
 
       setIsBooking(false);
-      // Здесь можно добавить уведомление об успешной записи
+      toast.success('Вы успешно записаны на прием');
     } catch (error) {
       console.error('Failed to book appointment:', error);
       setIsBooking(false);
-      // Здесь можно добавить уведомление об ошибке
+      toast.error('Не удалось записаться на прием');
     }
   };
 
@@ -178,18 +159,26 @@ const VetProfilePage = () => {
                   <label htmlFor="pet" className="text-sm font-medium">
                     Выберите питомца
                   </label>
-                  <Select value={appointmentForm.petId} onValueChange={handlePetChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Выберите питомца" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {pets.map((pet) => (
-                        <SelectItem key={pet.id} value={pet.id}>
-                          {pet.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {petsLoading ? (
+                    <div className="text-sm text-muted-foreground">Загрузка питомцев...</div>
+                  ) : pets.length > 0 ? (
+                    <Select value={appointmentForm.petId} onValueChange={handlePetChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Выберите питомца" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {pets.map((pet) => (
+                          <SelectItem key={pet.id} value={pet.id}>
+                            {pet.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      У вас нет добавленных питомцев
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid gap-2">
@@ -236,7 +225,7 @@ const VetProfilePage = () => {
                 <AlertDialogCancel>Отмена</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleBookAppointment}
-                  disabled={isBooking || !appointmentForm.petId}>
+                  disabled={isBooking || !appointmentForm.petId || pets.length === 0}>
                   {isBooking ? 'Отправка...' : 'Записаться'}
                 </AlertDialogAction>
               </AlertDialogFooter>

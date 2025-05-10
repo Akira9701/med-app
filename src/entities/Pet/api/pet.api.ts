@@ -4,6 +4,15 @@ import { EPetType } from '@/shared/constants/pet.constants';
 import { delay } from '@/shared/lib/utils/delay.utils';
 import { petMedicalRecordsMock, petsMock } from '@/shared/mocks/pet.mock';
 
+// Интерфейс для записи на прием
+export interface IAppointmentRequest {
+  vetId: string;
+  petId: string;
+  startTime: string;
+  endTime: string;
+  notes: string;
+}
+
 // Mock data for pets
 
 // Simulate network delay
@@ -84,6 +93,30 @@ const petApi = {
   getPetById: async (id: string): Promise<IPet> => {
     const response = await apiInstance.get<IPet>(`/profiles/pets/${id}`);
     return response.data;
+  },
+
+  /**
+   * Book an appointment with a veterinarian
+   */
+  bookAppointment: async (
+    appointmentData: IAppointmentRequest,
+  ): Promise<{
+    id: number;
+    clinicId: string;
+    vetId: string;
+    petId: string;
+    startTime: string;
+    endTime: string;
+    status: string;
+    notes: string;
+  }> => {
+    try {
+      const response = await apiInstance.post('/appointments/book', appointmentData);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to book appointment:', error);
+      throw error;
+    }
   },
 };
 
