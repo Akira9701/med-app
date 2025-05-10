@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import usePetStore, { fetchPets, setSelectedPet } from '@/entities/Pet/model/pet.store';
 import { useNavigate } from 'react-router';
 import { Avatar, AvatarFallback } from '@/shared/ui/avatar';
+import { Button } from '@/shared/ui/button';
+import { PlusIcon } from 'lucide-react';
 
 const PetsPage = () => {
   const navigate = useNavigate();
@@ -14,9 +16,14 @@ const PetsPage = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
-        Список питомцев
-      </h2>
+      <div className="flex justify-between items-center border-b pb-2 ">
+        <h2 className="mt-10 scroll-m-20 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
+          Список питомцев
+        </h2>
+        <Button onClick={() => navigate('/pets/create')} className="flex items-center gap-2">
+          <PlusIcon size={18} />
+        </Button>
+      </div>
       <div className="flex flex-col gap-4 overflow-y-auto flex-1">
         {loading ? (
           <div>Loading...</div>

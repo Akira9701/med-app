@@ -2,6 +2,7 @@ import ProfilePage from '@/pages/ProfilePage/ui/ProfilePage';
 import { createBrowserRouter } from 'react-router';
 import {
   loginRoute,
+  petCreateRoute,
   petsRoute,
   profileRoute,
   registerRoute,
@@ -15,6 +16,8 @@ import Root from './root';
 import VetsListPage from '@/pages/VetsListPage';
 import VetProfilePage from '@/pages/VetProfilePage/ui/VetProfilePage';
 import PetsPage from '@/pages/PetsPage';
+import CreatePetPage from '@/pages/CreatePetPage';
+
 const router = createBrowserRouter([
   {
     path: rootRoute,
@@ -43,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: petsRoute,
         element: <PetsPage />,
+      },
+      {
+        path: petCreateRoute,
+        element: <CreatePetPage />,
       },
     ],
   },

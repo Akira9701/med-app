@@ -11,5 +11,6 @@ export const registerRoute = '/register';
 // Add new pet routes
 export const petsRoute = '/pets';
 export const petDetailRoute = '/pets/:id';
+export const petCreateRoute = '/pets/create';
 
 export const authRoutes = [loginRoute, registerRoute];
