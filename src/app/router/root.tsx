@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
 
-import { useEffect, useMemo } from 'react';
-import { loginRoute, profileRoute, rootRoute } from './lib/constants';
+import { useEffect } from 'react';
+import { loginRoute, profileRoute, rootRoute, petsRoute, vetsRoute } from './lib/constants';
 import { useNavigate } from 'react-router';
 import PageLoader from '@/widgets/PageLoader/ui/PageLoader';
 import useUserStore, { setUser } from '@/entities/User/model/user.store';
@@ -10,25 +10,33 @@ import { delay } from '@/shared/lib/utils/delay.utils';
 import useAuthStore, { setIsShowLoader } from '@/entities/Auth/model/auth.store';
 import { Toaster } from 'sonner';
 import authToken from '@/shared/localstorage/authToken';
-import { Home } from 'lucide-react';
+import { Home, PawPrint, Stethoscope } from 'lucide-react';
 import AuthProvider from '../providers/AuthProvider';
 import { IUser } from '@/entities/User/types';
+import BottomNav from './ui/BottomNav';
+
+const rootItems = [
+  {
+    title: 'Profile',
+    url: profileRoute,
+    icon: Home,
+  },
+  {
+    title: 'Pets',
+    url: petsRoute,
+    icon: PawPrint,
+  },
+  {
+    title: 'Vets',
+    url: vetsRoute,
+    icon: Stethoscope,
+  },
+];
 
 const Root = () => {
   const navigate = useNavigate();
   const isShowLoader = useAuthStore((state) => state.isShowLoader);
   const isUser = useUserStore((state) => !!state.user);
-
-  const rootItems = useMemo(
-    () => [
-      {
-        title: 'Profile',
-        url: profileRoute,
-        icon: Home,
-      },
-    ],
-    [],
-  );
 
   // TODO: пересмотреть авторизацию
 
@@ -67,12 +75,12 @@ const Root = () => {
 
       {!isShowLoader && isUser ? (
         <>
-          <main className="flex-1 p-4 h-dvh w-dvw flex flex-col gap-4">
+          <main className="flex-1 p-4 h-dvh w-dvw flex flex-col gap-4 pb-[80px]">
             <div className="br-8 rounded-lg border-gray-200 w-full border p-4 flex-1">
               <Outlet />
             </div>
-            <div className="h-[70px] br-8 rounded-lg border-gray-200 w-full border p-2 "></div>
           </main>
+          <BottomNav items={rootItems} />
         </>
       ) : (
         <>
