@@ -4,14 +4,33 @@ import { CardHeader, CardTitle, CardContent } from '@/shared/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/shared/ui/avatar';
 import Typography from '@/shared/ui/Typography/ui/Typography';
 import { Badge } from '@/shared/ui/badge';
+import { LoadingState, EmptyState } from '@/shared/ui/LoadingState';
+import { Stethoscope } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const VetProfilePage = () => {
   const location = useLocation();
   const id = location.pathname.split('/').pop();
   const vet = useVetsStore((state) => state.vets?.find((vet) => vet.id === id));
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time for data to be available
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <LoadingState message="Загрузка информации о ветеринаре..." />;
+  }
 
   if (!vet) {
-    return <div className="flex items-center justify-center h-full">Ветеринар не найден</div>;
+    return (
+      <EmptyState message="Ветеринар не найден" icon={<Stethoscope className="h-12 w-12" />} />
+    );
   }
 
   return (

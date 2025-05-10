@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { EPetType } from '@/shared/constants/pet.constants';
 import petApi from '@/entities/Pet/api/pet.api';
 import { toast } from 'sonner';
+import { LoadingState } from '@/shared/ui/LoadingState';
 
 const CreatePetPage = () => {
   const navigate = useNavigate();
@@ -42,6 +43,10 @@ const CreatePetPage = () => {
       setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return <LoadingState message="Создание питомца..." />;
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -127,9 +132,7 @@ const CreatePetPage = () => {
         </div>
 
         <div className="flex gap-4 mt-4">
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Сохранение...' : 'Сохранить'}
-          </Button>
+          <Button type="submit">Сохранить</Button>
           <Button type="button" variant="outline" onClick={() => navigate('/pets')}>
             Отмена
           </Button>

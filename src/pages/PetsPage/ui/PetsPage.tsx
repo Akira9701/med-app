@@ -3,7 +3,8 @@ import usePetStore, { fetchPets, setSelectedPet } from '@/entities/Pet/model/pet
 import { useNavigate } from 'react-router';
 import { Avatar, AvatarFallback } from '@/shared/ui/avatar';
 import { Button } from '@/shared/ui/button';
-import { PlusIcon } from 'lucide-react';
+import { PlusIcon, PawPrint } from 'lucide-react';
+import { LoadingState, EmptyState } from '@/shared/ui/LoadingState';
 
 const PetsPage = () => {
   const navigate = useNavigate();
@@ -26,9 +27,9 @@ const PetsPage = () => {
       </div>
       <div className="flex flex-col gap-4 overflow-y-auto flex-1">
         {loading ? (
-          <div>Loading...</div>
-        ) : (
-          pets?.map((pet) => (
+          <LoadingState message="Загрузка питомцев..." />
+        ) : pets && pets.length > 0 ? (
+          pets.map((pet) => (
             <div
               key={pet.id}
               className="br-8 rounded-lg border-gray-200 w-full border p-4 flex-1 cursor-pointer"
@@ -51,6 +52,11 @@ const PetsPage = () => {
               </div>
             </div>
           ))
+        ) : (
+          <EmptyState
+            message="У вас пока нет добавленных питомцев"
+            icon={<PawPrint className="h-12 w-12" />}
+          />
         )}
       </div>
     </div>
