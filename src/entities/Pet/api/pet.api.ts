@@ -91,7 +91,7 @@ const petApi = {
   },
 
   getPetById: async (id: string): Promise<IPet> => {
-    const response = await apiInstance.get<IPet>(`/profiles/vets/${id}`);
+    const response = await apiInstance.get<IPet>(`/profiles/pets/${id}`);
     return response.data;
   },
 };
