@@ -7,7 +7,9 @@ import { PawPrint, Edit2, Save, Calendar, Dna, Badge, X } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { EPetType } from '@/shared/constants/pet.constants';
-
+import { toast } from 'sonner';
+import { FileDown } from 'lucide-react';
+import apiInstance from '@/shared/api/api.instance';
 const PetPage = () => {
   const location = useLocation();
   const [pet, setPet] = useState<IPet | null>(null);
@@ -16,6 +18,7 @@ const PetPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedPet, setEditedPet] = useState<IPet | null>(null);
   const [saving, setSaving] = useState(false);
+  const [generatingReport, setGeneratingReport] = useState(false);
 
   useEffect(() => {
     const fetchPet = async () => {
@@ -123,6 +126,46 @@ const PetPage = () => {
       />
     );
   }
+ const generatePetReport = async (petId: string): Promise<boolean> => {
+    try {
+      const response = await apiInstance.get(`/appointments/${petId}/report`, {
+        responseType: 'blob',
+      });
+
+      if (!response.data) {
+        toast.error('В данный момент невозможно получить отчет. Попробуйте позже.');
+        return false;
+      }
+  
+      // Создаем URL для blob
+      const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+  
+      // Создаем временный элемент ссылки
+      const fileLink = document.createElement('a');
+      fileLink.href = fileURL;
+      fileLink.setAttribute('download', `pet_report_${petId}.pdf`);
+  
+      // Добавляем в документ, кликаем и удаляем
+      document.body.appendChild(fileLink);
+      fileLink.click();
+      document.body.removeChild(fileLink);
+  
+      toast.success('Отчет успешно скачан');
+      return true;
+    } catch (error) {
+      console.error('Ошибка генерации отчета:', error);
+      toast.error('В данный момент невозможно получить отчет. Попробуйте позже.');
+      return false;
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    if (!location) return;
+
+    setGeneratingReport(true);
+    await generatePetReport(location.pathname.split('/').pop() || '');
+    setGeneratingReport(false);
+  };
 
   return (
     <div className="flex flex-col gap-4 p-3 max-w-3xl mx-auto">
@@ -266,8 +309,20 @@ const PetPage = () => {
           <>
             <Edit2 className="h-3.5 w-3.5 mr-1.5" /> Редактировать
           </>
+          
         )}
       </Button>
+      <div>
+        <Button
+          onClick={handleGenerateReport}
+          disabled={generatingReport || !location}
+          variant="default"
+          size="sm"
+          className="min-w-[380px] mt-2">
+          <FileDown className="h-4 w-4" />
+          {generatingReport ? 'Генерация...' : 'Сгенерировать отчет'}
+        </Button>
+      </div>
     </div>
   );
 };
